@@ -1,8 +1,7 @@
 <?php namespace Wn\Generators\Commands;
 
-
-class MigrationCommand extends BaseCommand {
-
+class MigrationCommand extends BaseCommand
+{
     protected $signature = 'wn:migration
         {table : The table name.}
         {--schema= : the schema.}
@@ -46,10 +45,12 @@ class MigrationCommand extends BaseCommand {
 
     protected function deleteOldMigration($fileName)
     {
-        foreach (new \DirectoryIterator("./database/migrations/") as $fileInfo){
-            if($fileInfo->isDot()) continue;
+        foreach (new \DirectoryIterator("./database/migrations/") as $fileInfo) {
+            if ($fileInfo->isDot()) {
+                continue;
+            }
 
-            if(strpos($fileInfo->getFilename(), $fileName) !== FALSE){
+            if (strpos($fileInfo->getFilename(), $fileName) !== false) {
                 unlink($fileInfo->getPathname());
             }
         }
@@ -81,7 +82,7 @@ class MigrationCommand extends BaseCommand {
         $name = $parts[0]['name'];
         $parts[1]['args'] = array_merge(["'{$name}'"], $parts[1]['args']);
         unset($parts[0]);
-        $parts = array_map(function($part){
+        $parts = array_map(function ($part) {
             return '->' . $part['name'] . '(' . implode(', ', $part['args']) . ')';
         }, $parts);
         return "            \$table" . implode('', $parts) . ';';
@@ -92,7 +93,8 @@ class MigrationCommand extends BaseCommand {
         return $this->buildParameters($this->parseValue($keys, 'foreign-keys'), "// Constraints declaration", [$this, 'getConstraintDeclaration']);
     }
 
-    protected function buildParameters($items, $emptyPlaceholder, $callback = null) {
+    protected function buildParameters($items, $emptyPlaceholder, $callback = null)
+    {
         if ($items === false) {
             return $this->spaces(12) . $emptyPlaceholder;
         }
@@ -111,11 +113,17 @@ class MigrationCommand extends BaseCommand {
 
     protected function getConstraintDeclaration($key)
     {
-        if(! $key['column']){
+        if (! $key['column']) {
             $key['column'] = 'id';
         }
-        if(! $key['table']){
-            $key['table'] = substr($key['name'], 0, count($key['name']) - 4);
+        if (is_array($key['name'])) {
+            if (! $key['table']) {
+                $key['table'] = str_plural(substr($key['name'], 0, count($key['name']) - 4));
+            }
+        } else {
+            if (! $key['table']) {
+                $key['table'] = str_plural(substr($key['name'], 0, 1 - 4));
+            }
         }
 
         $constraint = $this->getTemplate('migration/foreign-key')
@@ -126,7 +134,7 @@ class MigrationCommand extends BaseCommand {
             ])
             ->get();
 
-        if($key['on_delete']){
+        if ($key['on_delete']) {
             $constraint .= PHP_EOL . $this->getTemplate('migration/on-constraint')
                     ->with([
                         'event' => 'Delete',
@@ -135,7 +143,7 @@ class MigrationCommand extends BaseCommand {
                     ->get();
         }
 
-        if($key['on_update']){
+        if ($key['on_update']) {
             $constraint .= PHP_EOL . $this->getTemplate('migration/on-constraint')
                     ->with([
                         'event' => 'Update',
@@ -146,5 +154,4 @@ class MigrationCommand extends BaseCommand {
 
         return $constraint . ';';
     }
-
 }

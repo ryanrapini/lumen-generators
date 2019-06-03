@@ -10,3 +10,5 @@ lumen-test/tests/tmp
 
 .DS_Store
 .idea
+
+*.cache
