@@ -1,5 +1,5 @@
 {
-    "name": "wn/lumen-generators",
+    "name": "ryanrapini/lumen-generators",
     "description": "A collection of generators for Lumen and Laravel 5.",
 	"keywords": ["lumen", "laravel", "rest", "api", "generators"],
     "license": "MIT",
